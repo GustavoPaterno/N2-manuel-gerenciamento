@@ -158,5 +158,30 @@ npm install ./packages/package1.tgz
 
 ---
 
-## 👤 Autor
-Desenvolvido por *[Seu Nome]* — Engenharia de Software (N2 - CI/CD e Artefatos)
+## 📸 Provas de Execução
+
+Abaixo estão capturas de tela que comprovam o funcionamento do ambiente Forgejo, pipeline e publicação da imagem Docker no registry local.
+
+<p align="center">
+  <img src="https://i.imgur.com/w0DjM0I.png" alt="Forgejo rodando" width="600"><br>
+  <em>🏗️ Ambiente Forgejo e Runner em execução</em>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/Wz0CSgF.png" alt="Pipeline executado" width="600"><br>
+  <em>⚙️ Execução do pipeline com build automatizado via Forgejo Runner</em>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/4gcvq5B.png" alt="Imagem publicada no registry" width="600"><br>
+  <em>🐳 Imagem Docker publicada no registry local</em>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/l3ZsAjr.png" alt="Pacote npm local" width="600"><br>
+  <em>📦 Instalação e execução do pacote <code>package1.tgz</code></em>
+</p>
+
+---
+
+
