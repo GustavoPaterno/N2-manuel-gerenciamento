@@ -1,197 +1,162 @@
-# Projeto DevOps - CI/CD com Forgejo e Docker
+# 🧩 N2 - Ambiente DevOps com Forgejo e Node.js
 
-## 1️⃣ Descrição
-
-Este projeto demonstra a **reprodução de um fluxo DevOps** utilizando ferramentas open source, com foco em:
-
-* **Versionamento de código**: Forgejo (fork do Gitea)
-* **Pipeline CI/CD**: workflow local
-* **Build e publicação de imagens Docker** de uma aplicação Node.js simples
-
-O objetivo é **demonstrar o ciclo completo de desenvolvimento moderno**, incluindo push para o repositório, build automatizado e execução de container Docker.
+Este projeto implementa um fluxo **DevOps completo** utilizando ferramentas open source, atendendo aos requisitos da N2 de Versionamento, Pipelines e Artefatos.
 
 ---
 
-## 2️⃣ Estrutura do projeto
+## 📁 Estrutura de Pastas
 
 ```
-Teste/
-├── forgejo/                  # Servidor Git local
-│   └── docker-compose.yml
-└── app/                      # Aplicação Node.js
-    ├── Dockerfile
-    ├── package.json
-    ├── server.js
-    └── .forgejo/             # Pipeline (workflow)
-        └── workflows/
-            └── build.yml
+/n2
+ ├─ /forgejo        → Contém o ambiente Forgejo (Git + Runner + Registry)
+ ├─ /app            → Contém a aplicação Node.js (API Express)
 ```
 
 ---
 
-## 3️⃣ Tecnologias utilizadas
+## ⚙️ 1. Subindo o ambiente Forgejo
 
-* **Forgejo**: servidor Git open source auto-hospedado
-* **Node.js**: aplicação API REST simples
-* **Docker / Docker Compose**: containerização da aplicação e do Forgejo
-* **Pipeline local**: workflow `.forgejo/workflows/build.yml` simulando CI/CD
+> Este passo configura o servidor Forgejo, o runner e o registry Docker local.
 
-> Obs: Não foi necessário configurar banco de dados separado nem CI completo. A demonstração é prática e auto-suficiente.
-
----
-
-## 4️⃣ Rodando o projeto manualmente
-
-### 4.1 Subir o Forgejo
-
-Na pasta `forgejo/`:
-
+📍 Caminho:  
 ```bash
-docker-compose up -d
+cd /n2/forgejo
 ```
 
-* Abra no navegador: [http://localhost:3001](http://localhost:3001)
-* Complete a configuração inicial (usuário admin, organização, repositório)
+🚀 Execute:
+```bash
+docker compose up -d
+```
+
+🔹 Isso irá iniciar os seguintes serviços:
+- **Forgejo**: Servidor Git e interface web (porta `3001`)
+- **Forgejo Runner**: Responsável por executar pipelines
+- **Registry**: Armazena imagens Docker geradas no pipeline (porta `5000`)
+
+Após subir, o Forgejo estará disponível em:  
+👉 [http://localhost:3001](http://localhost:3001)
 
 ---
 
-### 4.2 Subir a aplicação para o Forgejo
+## 🧠 2. Aplicação Node.js (API Express)
 
-Na pasta `app/`:
-
+📍 Caminho:  
 ```bash
-git init
-git switch -c main
+cd /n2/app
+```
+
+A aplicação é uma API simples com **Express**, definida em `server.js`.
+
+Exemplo básico:
+```javascript
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('API funcionando! 🚀');
+});
+
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
+});
+```
+
+---
+
+## 🚀 3. Executando o pipeline de build
+
+Após o ambiente Forgejo estar ativo e o repositório configurado, você pode **fazer um push** na branch `master` para acionar o pipeline.
+
+Exemplo:
+```bash
 git add .
-git commit -m "Primeiro commit da aplicação"
-git remote add origin http://localhost:3001/catolica/backend.git
-git push -u origin main
+git commit -m "Atualizando API"
+git push origin master
 ```
 
-> Push dispararia o pipeline se houvesse um runner. Como não há runner, vamos rodar manualmente.
+O Forgejo Runner irá:
+1. Clonar o repositório.
+2. Instalar as dependências (`npm install`).
+3. Rodar o servidor (`node server.js`).
+4. Encerrar o processo automaticamente após 20 segundos.
+5. Gerar e publicar a imagem Docker no registry local.
 
 ---
 
-### 4.3 Executar pipeline manualmente
+## 🐳 4. Publicação no Registry
 
-1. Instalar dependências Node.js:
+A imagem Docker gerada será publicada no registry local configurado no Docker Compose.
 
-```bash
-npm install
-```
-
-2. Testar aplicação localmente:
-
-```bash
-node server.js
-```
-
-* Em outro terminal:
-
-```bash
-curl http://localhost:3000
-```
-
-> Deve retornar algo como: `API funcionando! 🚀`
-
----
-
-### 4.4 Build da imagem Docker
-
-```bash
-docker build -t backend:demo .
-```
-
-* Confirma que a imagem foi criada:
-
-```bash
-docker images
-```
-
----
-
-### 4.5 Rodar a imagem Docker
-
-Mapeando porta do container (3000) para porta livre do host (ex: 3002):
-
-```bash
-docker run -p 3002:3000 backend:demo
-```
-
-* Abra no navegador: [http://localhost:3002](http://localhost:3002) → `API funcionando! 🚀`
-
----
-
-### 4.6 Salvar a imagem (opcional)
-
-```bash
-docker save backend:demo -o backend.tar
-```
-
-* Pode ser copiada ou distribuída para outro host.
-
----
-
-## 5️⃣ Pipeline de CI/CD (simulado)
-
-Arquivo: `.forgejo/workflows/build.yml`
+Exemplo do pipeline (`.forgejo/workflows/build.yml`):
 
 ```yaml
-name: Demo CI/CD Pipeline
+name: Build Express API Docker
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
-    runs-on: docker
+    runs-on: [docker]
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
+      - name: Clonar repositório
         run: |
-          npm install
+          git clone --branch master http://host.docker.internal:3001/catolica/backend.git .
+          echo "Repositório clonado com sucesso"
 
-      - name: Run simple test
-        run: |
-          node server.js & sleep 2 && curl http://localhost:3000 || echo "Test falhou"
+      - name: Instalar dependências
+        run: npm install
 
-      - name: Build Docker image
+      - name: Build da imagem Docker
         run: |
-          docker build -t backend:demo .
+          IMAGE_NAME="localhost:5000/backend:latest"
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
 
-      - name: Save Docker image
+      - name: Rodar servidor (teste)
         run: |
-          docker save backend:demo -o backend.tar
+          node server.js &
+          sleep 20
+          pkill node
 ```
 
-> Mesmo sem runner, esse workflow mostra **intuitivamente cada passo de um pipeline CI/CD**.
+✅ Após a execução, a imagem estará disponível no **registry local**:  
+[http://localhost:5000/v2/_catalog](http://localhost:5000/v2/_catalog)
 
 ---
 
-## 6️⃣ Demonstração prática
+## 📦 5. Artefatos e Pacotes
 
-* Mostrar push para Forgejo
-* Mostrar logs do pipeline / execução manual
-* Mostrar a aplicação rodando via Docker
-* Mostrar o arquivo de imagem (`backend.tar`) pronto para deploy
+Há um pacote npm local (`package1.tgz`) dentro da pasta `packages/` que pode ser instalado com:
 
----
-
-## 7️⃣ Observações
-
-* O Forgejo persiste dados em `forgejo/data`
-* Pipeline é simples, mas cobre **todos os passos de CI/CD**
-* Pode ser expandido para publicar em um registry local ou remoto facilmente
+```bash
+npm install ./packages/package1.tgz
+```
 
 ---
 
-## 8️⃣ Autor / Equipe
+## 🧾 Resumo rápido
 
-- GUSTAVO GABRIEL PATERNO
-- JOÃO PEDRO SUMI BEBBER
-- GUSTAVO FONTANA BERTOLDI
-- JEAN CARLO MENEZES CUNHA
+| Diretório | Função | Como executar |
+|------------|--------|----------------|
+| `/forgejo` | Servidor Git + Runner + Registry | `docker compose up -d` |
+| `/app` | API Node.js e pipeline de build | `git push origin master` |
+
+---
+
+## 💡 Dicas
+- Certifique-se de que o Docker e o Forgejo estejam em execução antes de dar o push.  
+- Se quiser testar o servidor manualmente:  
+  ```bash
+  cd /n2/app
+  node server.js
+  ```
+
+---
+
+## 👤 Autor
+Desenvolvido por *[Seu Nome]* — Engenharia de Software (N2 - CI/CD e Artefatos)
