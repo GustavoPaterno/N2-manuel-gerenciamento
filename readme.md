@@ -158,28 +158,30 @@ npm install ./packages/package1.tgz
 
 ---
 
-## 📸 Provas de Execução
-
-Abaixo estão capturas de tela que comprovam o funcionamento do ambiente Forgejo, pipeline e publicação da imagem Docker no registry local.
+## 📸 Provas do Projeto
 
 <p align="center">
-  <img src="https://i.imgur.com/w0DjM0I.png" alt="Forgejo rodando" width="600"><br>
-  <em>🏗️ Ambiente Forgejo e Runner em execução</em>
+  <img src="https://i.imgur.com/NVZnLAa.jpeg" width="600" alt="Forgejo rodando">
+  <br>
+  <em>🏗️ Ambiente Forgejo em execução</em>
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/Wz0CSgF.png" alt="Pipeline executado" width="600"><br>
-  <em>⚙️ Execução do pipeline com build automatizado via Forgejo Runner</em>
+  <img src="https://i.imgur.com/LXjwuvu.jpeg" width="600" alt="Pipeline rodando">
+  <br>
+  <em>⚙️ Pipeline executando build da aplicação</em>
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/4gcvq5B.png" alt="Imagem publicada no registry" width="600"><br>
-  <em>🐳 Imagem Docker publicada no registry local</em>
+  <img src="https://i.imgur.com/rcMoUaQ.jpeg" width="600" alt="Runner executando job">
+  <br>
+  <em>🚀 Runner executando os jobs configurados</em>
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/l3ZsAjr.png" alt="Pacote npm local" width="600"><br>
-  <em>📦 Instalação e execução do pacote <code>package1.tgz</code></em>
+  <img src="https://i.imgur.com/PIGtutA.jpeg" width="600" alt="Registry local ativo">
+  <br>
+  <em>📦 Imagem publicada com sucesso no Registry local</em>
 </p>
 
 ---
